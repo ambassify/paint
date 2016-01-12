@@ -7,7 +7,9 @@
     "start": "nodemon src/index.js --exec babel-node",
     "build": "babel src -d dist",
     "serve": "node dist/index.js",
-    "test": "ENVIRONMENT=testing mocha --compilers js:babel-register"
+    "test": "npm run eslint && npm run mocha",
+    "eslint": "eslint --env node --fix src",
+    "mocha": "ENVIRONMENT=testing mocha --compilers js:babel-register"
   },
   "repository": {
     "type": "git",
