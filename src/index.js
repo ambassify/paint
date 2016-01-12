@@ -6,7 +6,7 @@ import express from 'express';
 import info from '../package.json';
 
 import initEnv, { inProduction } from './helpers/environment';
-import Paint from './lib/paint';
+import paint from './lib/paint';
 import errorHandler from './middleware/errors';
 
 initEnv(path.join(__dirname, '../.env'));
@@ -22,15 +22,15 @@ server.get('/paint', function getPaint (req, res, next) {
         url = req.query.urlvar,
         vars = req.query.var;
 
-    Paint(source, url, vars).then((result) => {
+    paint(source, url, vars).then((result) => {
         res.status(200).type('css').send(result);
     }).catch((e) => {
-        next ({ code: 500, message: "Compile failed", error: e });
+        next ({ code: 500, message: 'Compile failed', error: e });
     });
 });
 
 server.get('/', function getRoot (req, res) {
-	res.status(200).send({ name: info.name, version: info.version });
+    res.status(200).send({ name: info.name, version: info.version });
 });
 
 server.use(errorHandler);
