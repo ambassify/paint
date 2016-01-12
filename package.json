@@ -1,0 +1,23 @@
+{
+  "name": "paint",
+  "version": "0.0.1",
+  "description": "SASS build microservice",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bubobox/paint.git"
+  },
+  "keywords": [
+    "sass",
+    "build"
+  ],
+  "author": "Ambassify",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bubobox/paint/issues"
+  },
+  "homepage": "https://github.com/bubobox/paint#readme"
+}
