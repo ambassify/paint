@@ -1,26 +1,39 @@
 'use strict';
 
-import dotenv from 'dotenv';
-import express from 'express';
+import _ from 'lodash';
 import path from 'path';
+import express from 'express';
 import info from '../package.json';
 
-if (process.env.ENVIRONMENT)
-    dotenv.config({
-        silent: true,
-        path: path.join(__dirname, '../.env/' + process.env.ENVIRONMENT)
-    });
+import initEnv, { inProduction } from './helpers/environment';
+import Paint from './lib/paint';
+import errorHandler from './middleware/errors';
 
-dotenv.config({
-    silent: true,
-    path: path.join(__dirname, '../.env/default')
-});
+initEnv(path.join(__dirname, '../.env'));
 
 const server = express();
 
-server.get('/', function(req, res) {
+// Pretty JSON when not in production
+if (!inProduction())
+    server.set('json spaces', 2);
+
+server.get('/paint', function getPaint (req, res, next) {
+    const source = req.query.source,
+        url = req.query.urlvar,
+        vars = req.query.var;
+
+    Paint(source, url, vars).then((result) => {
+        res.status(200).type('css').send(result);
+    }).catch((e) => {
+        next ({ code: 500, message: "Compile failed", error: e });
+    });
+});
+
+server.get('/', function getRoot (req, res) {
 	res.status(200).send({ name: info.name, version: info.version });
 });
+
+server.use(errorHandler);
 
 server.listen( process.env.PORT );
 
