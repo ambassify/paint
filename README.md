@@ -10,5 +10,5 @@ Check the [default env file](.env/default) for any environment variables you mig
 
 ```
 npm install
-npm start
+npm run dev
 ```

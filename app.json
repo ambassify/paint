@@ -1,0 +1,20 @@
+{
+  "name": "Paint",
+  "description": "Dynamic SASS builder in Node.js",
+  "repository": "https://github.com/bubobox/paint",
+  "website": "https://github.com/bubobox/paint",
+  "logo": "https://raw.githubusercontent.com/bubobox/paint/master/logo.png",
+  "keywords": ["node", "sass"],
+  "repository": "https://github.com/bubobox/paint",
+  "success_url": "/",
+  "env": {
+    "ENVIRONMENT": {
+      "description": "Application environment",
+      "value": "production"
+    },
+    "PORT": {
+      "description": "Port to run from",
+      "value": "80"
+    }
+  }
+}
