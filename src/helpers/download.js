@@ -24,17 +24,18 @@ export function downloadFile(url) {
         const local = getFileForPath(url);
 
         try {
-            request.get(url).buffer(false).end((err, res) => {
+            request.get(url).buffer(true).end((err, res) => {
                 if (err || !res.ok) {
                     return reject(err || res.status);
                 }
 
-                const stream = getWriteStream(local);
+                fs.writeFile(local, res.text, function (err) {
+                    if (err) {
+                        throw err;
+                    }
 
-                stream.on('finish', () => { resolve(local); });
-                stream.on('error', (e) => { reject(e); });
-
-                res.pipe(stream);
+                    resolve(local);
+                });
             });
         } catch (e) {
             throw new Error('Superagent failed');
