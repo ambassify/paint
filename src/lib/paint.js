@@ -1,7 +1,16 @@
 'use strict';
 
+import fs from 'fs';
 import sass from 'node-sass';
 import _ from 'lodash';
+
+import { download, downloadFile } from '../helpers/download';
+import unpack, { canHandle as isArchive } from '../helpers/unarchive';
+import sassCompile, {
+    optionsForFile as sassFileOptions,
+    optionsForDirectory as sassDirectoryOptions,
+    optionsForData as sassDataOptions
+} from '../helpers/sass';
 
 const SASS_OPTIONS = {
     outputStyle: 'compressed'
@@ -15,10 +24,27 @@ function _downloadVariables (url) {
     if (!url)
         return {};
 
-    return new Promise(function (resolve, reject) {
-        // download and decode vars
-        resolve({ some: 'var' });
-    });
+    return download(url)
+        .catch((e) => {
+            throw new Error(`'Failed to download [${url}]`);
+        })
+        .then((contents) => {
+            let variables = contents;
+
+            // Superagent should have handled this, but we try once more
+            // in case the source didn't set Content-Type correctly
+            if (_.isString(contents)) {
+                try {
+                    variables = JSON.parse(contents);
+                } catch (e) { }
+            }
+
+            if (!_.isPlainObject(variables)) {
+                throw new Error(`'Invalid variables supplied at [${url}]`);
+            }
+
+            return variables;
+        });
 }
 
 function _assignVariables (map, variables = null) {
@@ -43,29 +69,23 @@ function _ensureLocal (isUrl, source) {
     if (!isUrl)
         return source;
 
-    return new Promise(function (resolve, reject) {
-        // download file
-        resolve(source);
-    });
+    return downloadFile(source);
 }
 
 function _ensureUnpacked (isFile, source) {
-    if (!isFile)
+    if (!isFile || !isArchive(source))
         return source;
 
-    return new Promise(function (resolve, reject) {
-        // extract file
-        resolve(source);
-    });
+    return unpack(source);
 }
 
 function _makeSassOptions (isUrl, source, vars, baseOptions) {
-    const options = {
-        outputStyle: 'compressed',
-        data: '$green: #F00; .gert { background: $green; }'
-    };
+    if (!isUrl)
+        return sassDataOptions(source, vars, baseOptions);
 
-    return options;
+    return fs.statSync(source).isDirectory() ?
+        sassDirectoryOptions(source, vars, baseOptions) :
+        sassFileOptions(source, vars, baseOptions);
 }
 
 function _compileSass (options) {
@@ -101,5 +121,5 @@ function Paint (source, variablesUrl = null, variables = null, options = {}) {
         .then(() => _ensureLocal(isUrl, source))
         .then((local) => _ensureUnpacked(isUrl, local))
         .then((local) => _makeSassOptions(isUrl, local, varMap, options))
-        .then((sassOptions) => _compileSass(sassOptions));
+        .then(sassCompile);
 }

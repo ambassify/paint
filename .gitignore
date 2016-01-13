@@ -1,5 +1,7 @@
 node_modules/
 dist/
+cache/*
 .env/*
 !.env/default
 !.env/testing
+!.gitkeep
