@@ -3,6 +3,8 @@ import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
 
+import logger from './logger';
+
 let _root = null;
 
 const _tryHashes = [ 'md5', 'sha1', 'sha256', 'sha512' ];
@@ -11,7 +13,7 @@ let _hash = _.intersection(_tryHashes, _allHashes).shift();
 
 if (!_hash) {
     _hash = _allHashes.pop();
-    console.log('Using non-preferred hashing in filesystem helper:', _hash);
+    logger.warn('Using non-preferred hashing in filesystem helper:', _hash);
 }
 
 function _ensureRoot () {

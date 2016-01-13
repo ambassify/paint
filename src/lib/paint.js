@@ -4,6 +4,7 @@ import fs from 'fs';
 import sass from 'node-sass';
 import _ from 'lodash';
 
+import logger from '../helpers/logger';
 import { download, downloadFile } from '../helpers/download';
 import unpack, { canHandle as isArchive } from '../helpers/unarchive';
 import sassCompile, {
@@ -23,6 +24,8 @@ function _isUrl (url) {
 function _downloadVariables (url) {
     if (!url)
         return {};
+
+    logger.info({ context: 'variables' }, 'Downloading variables from %s', url);
 
     return download(url)
         .catch((e) => {
@@ -69,6 +72,8 @@ function _ensureLocal (isUrl, source) {
     if (!isUrl)
         return source;
 
+    logger.info({ context: 'source' }, 'Downloading source from %s', source);
+
     return downloadFile(source);
 }
 
@@ -76,27 +81,20 @@ function _ensureUnpacked (isFile, source) {
     if (!isFile || !isArchive(source))
         return source;
 
+    logger.info({ context: 'source' }, 'Unpacking downloaded source');
+
     return unpack(source);
 }
 
 function _makeSassOptions (isUrl, source, vars, baseOptions) {
+    logger.info({ context: 'sass' }, 'Generating sass variables');
+
     if (!isUrl)
         return sassDataOptions(source, vars, baseOptions);
 
     return fs.statSync(source).isDirectory() ?
         sassDirectoryOptions(source, vars, baseOptions) :
         sassFileOptions(source, vars, baseOptions);
-}
-
-function _compileSass (options) {
-    return new Promise((resolve, reject) => {
-        sass.render(options, (err, res) => {
-            if (err)
-                reject(err);
-            else
-                resolve(res.css);
-        });
-    });
 }
 
 export default

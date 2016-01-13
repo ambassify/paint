@@ -7,6 +7,7 @@ import info from '../package.json';
 
 import initEnv, { inProduction } from './helpers/environment';
 import { setRoot } from './helpers/cache';
+import logger from './helpers/logger';
 import paint from './lib/paint';
 import errorHandler from './middleware/errors';
 
@@ -41,7 +42,7 @@ server.use(errorHandler);
 
 server.listen( process.env.PORT );
 
-console.log(
+logger.info(
     info.name,
     'is listening with mode',
     process.env.ENVIRONMENT,
