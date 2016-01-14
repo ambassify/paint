@@ -9,8 +9,7 @@
   "success_url": "/",
   "env": {
     "ENVIRONMENT": {
-      "description": "Application environment",
-      "value": "production"
+      "description": "Application environment (production/staging/testing)"
     },
     "PORT": {
       "description": "Port to run from",
