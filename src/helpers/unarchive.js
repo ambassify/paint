@@ -33,14 +33,17 @@ export default function unarchive (path) {
         const read = fs.createReadStream(path)
             .on('error', () => { throw new Error(`Failed to read file. ${path}`);});
 
-        const pipeline = [];
+        let pipeline;
 
         if (type === 'gz')
-            pipeline.push(zlib.createUnzip());
+            pipeline = pumpify([
+                zlib.createUnzip(),
+                tar.extract(destionationDir)
+            ]);
+        else
+            pipeline = tar.extract(destionationDir);
 
-        pipeline.push(tar.extract(destionationDir));
-
-        read.pipe(pumpify(pipeline))
+        read.pipe(pipeline)
             .on('error', () => { throw new Error(`Failed to extract archive. ${path}`);})
             .on('finish', () => { resolve(destionationDir); });
     });
