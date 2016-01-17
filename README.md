@@ -27,7 +27,7 @@ Compile SASS into CSS.
 
 __Parameters:__
 
-- `src`: The source SASS to compile. Either plain SASS, a link to an SASS file or a link to a (optionally gzipped) tarball containing SASS files. In case of an archive, there needs to be a `style.scss` file in the root.
+- `src`: The source SASS to compile. Either plain SASS, a link to an SASS file or a link to a (optionally gzipped) tarball containing SASS files. In case of an archive, there needs to be a `style.scss` file in the root. Optionally, you can include an `options.json` file in the archive that sets the options as explained below for the `opt` parameter.
 
 - `var`: Array of SASS variables to use during compilation. E.g. `?var[primary]=green` will result in `$primary: green;`
 
