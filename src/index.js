@@ -23,11 +23,12 @@ if (!inProduction())
 server.use('/assets', express.static(path.join(__dirname, '../assets')));
 
 server.get('/paint', function getPaint (req, res, next) {
-    const source = req.query.source,
-        url = req.query.urlvar,
-        vars = req.query.var;
+    const source = req.query.src,
+        url = req.query.uvar,
+        vars = req.query.var,
+        opts = req.query.opt;
 
-    paint(source, url, vars).then((result) => {
+    paint(source, url, vars, opts).then((result) => {
         res.status(200).type('css').send(result);
     }).catch((e) => {
         next ({ code: 500, message: 'Compile failed', error: e });
