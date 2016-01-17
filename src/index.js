@@ -26,7 +26,7 @@ server.get('/paint', function getPaint (req, res, next) {
     const source = req.query.src,
         url = req.query.uvar,
         vars = req.query.var,
-        opts = req.query.opts;
+        opts = req.query.opt;
 
     paint(source, url, vars, opts).then((result) => {
         res.status(200).type('css').send(result);
