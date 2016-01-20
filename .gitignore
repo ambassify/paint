@@ -2,7 +2,7 @@ node_modules/
 dist/
 cache/*
 npm-debug.log
-.env/*
-!.env/default
-!.env/testing
+env/*
+!env/default
+!env/testing
 !.gitkeep

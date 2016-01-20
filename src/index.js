@@ -11,7 +11,7 @@ import logger from './helpers/logger';
 import paint from './lib/paint';
 import errorHandler from './middleware/errors';
 
-initEnv(path.join(__dirname, '../.env'));
+initEnv(path.join(__dirname, '../env'));
 setRoot(path.join(__dirname, '../cache'));
 
 const server = express();
