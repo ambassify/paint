@@ -29,7 +29,11 @@ server.get('/paint', function getPaint (req, res, next) {
         opts = req.query.opt;
 
     paint(source, url, vars, opts).then((result) => {
-        res.status(200).type('css').send(result);
+        res
+            .status(200)
+            .type('css')
+            .set('Cache-Control', 'public, max-age=31556926') // 1 year
+            .send(result);
     }).catch((e) => {
         next ({ code: 500, message: 'Compile failed', error: e });
     });
