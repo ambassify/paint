@@ -37,8 +37,8 @@ const _getImportProtector = (allowed) => (file, prev) => {
 
     // If we get here, the import is allowed, pass along
     // to the next import handler
-    return sass.types.Null();
-}
+    return sass.types.Null(); // eslint-disable-line
+};
 
 export function makeSassVariables (vars) {
     return _.map(vars, (v, k) => {
@@ -46,8 +46,8 @@ export function makeSassVariables (vars) {
     }).join('\n');
 }
 
-export function makeSassImport (path) {
-    return `@import "${path}";`;
+export function makeSassImport (location) {
+    return `@import "${location}";`;
 }
 
 export default function compile (options) {

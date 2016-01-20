@@ -125,5 +125,5 @@ function Paint (source, variablesUrl = null, variables = null, options = {}) {
         .then(() => _ensureLocal(isUrl, source))
         .then((local) => _ensureUnpacked(isUrl, local))
         .then((local) => _makeSassOptions(isUrl, local, varMap, options))
-        .then((options) => _sassCompile(options));
+        .then((sassOptions) => _sassCompile(sassOptions));
 }

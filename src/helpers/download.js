@@ -28,12 +28,6 @@ function _request(url, cb) {
     });
 }
 
-export function download (url) {
-    return downloadFile(url).then((location) => {
-        return fs.readFileSync(location, 'utf8');
-    });
-}
-
 export function downloadFile(url) {
     return new Promise((resolve, reject) => {
         const cacheDir = getFileForPath(url);
@@ -53,5 +47,11 @@ export function downloadFile(url) {
         } catch (e) {
             throw e;
         }
+    });
+}
+
+export function download (url) {
+    return downloadFile(url).then((location) => {
+        return fs.readFileSync(location, 'utf8');
     });
 }
