@@ -5,7 +5,7 @@ import pumpify from 'pumpify';
 import fileType from 'file-type';
 import readChunk from 'read-chunk';
 
-import { getDirectoryForPath, getWriteStream } from './cache';
+import { getDirectoryForPath } from './cache';
 
 function _getType (path) {
     const info = fileType(readChunk.sync(path, 0, 262));
@@ -28,7 +28,10 @@ export default function unarchive (path) {
         if (!_canHandle(type))
             throw new Error(`unarchive helper does not support type ${type}`);
 
-        const destionationDir = getDirectoryForPath(path);
+        const cacheDir = getDirectoryForPath(path);
+
+        if (cacheDir.exists)
+            return resolve(cacheDir.path);
 
         const read = fs.createReadStream(path)
             .on('error', () => { throw new Error(`Failed to read file. ${path}`);});
@@ -38,13 +41,13 @@ export default function unarchive (path) {
         if (type === 'gz')
             pipeline = pumpify([
                 zlib.createUnzip(),
-                tar.extract(destionationDir)
+                tar.extract(cacheDir.path)
             ]);
         else
-            pipeline = tar.extract(destionationDir);
+            pipeline = tar.extract(cacheDir.path);
 
         read.pipe(pipeline)
             .on('error', () => { throw new Error(`Failed to extract archive. ${path}`);})
-            .on('finish', () => { resolve(destionationDir); });
+            .on('finish', () => { resolve(cacheDir.path); });
     });
 }

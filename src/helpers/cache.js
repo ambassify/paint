@@ -32,19 +32,19 @@ export function getDirectoryForPath(p) {
     _ensureRoot();
     const hash = crypto.createHash(_hash).update(p).digest('hex');
     const destination = path.join(_root, hash);
+    const exists = fs.existsSync(destination);
 
-    if (!fs.existsSync(destination))
+    if (!exists)
         fs.mkdirSync(destination);
 
-    return destination;
+    return { path: destination, exists: exists };
 }
 
 export function getFileForPath(p) {
     _ensureRoot();
     const hash = crypto.createHash(_hash).update(p).digest('hex');
-    return path.join(_root, hash);
-}
+    const destination = path.join(_root, hash);
+    const exists = fs.existsSync(destination);
 
-export function getWriteStream(file) {
-    return fs.createWriteStream(file);
+    return { path: destination, exists: exists };
 }

@@ -2,7 +2,7 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 
-import { getFileForPath, getWriteStream } from './cache';
+import { getFileForPath } from './cache';
 
 function _request(url, cb) {
     const agent = url.indexOf('https') === 0 ? https : http;
@@ -29,32 +29,25 @@ function _request(url, cb) {
 }
 
 export function download (url) {
-    return new Promise((resolve, reject) => {
-        try {
-            _request(url, (res) => {
-                let body = '';
-                res.setEncoding('utf8');
-                res.on('data', function (chunk) { body += chunk; });
-                res.on('end', () => {
-                    resolve(body);
-                });
-            });
-        } catch (e) {
-            throw e;
-        }
+    return downloadFile(url).then((location) => {
+        return fs.readFileSync(location, 'utf8');
     });
 }
 
 export function downloadFile(url) {
     return new Promise((resolve, reject) => {
-        const local = getFileForPath(url);
-        const stream = getWriteStream(local);
+        const cacheDir = getFileForPath(url);
+
+        if (cacheDir.exists)
+            return resolve(cacheDir.path);
+
+        const stream = fs.createWriteStream(cacheDir.path);
 
         try {
             _request(url, (res) => {
                 res.pipe(stream);
                 res.on('end', () => {
-                    resolve(local);
+                    resolve(cacheDir.path);
                 });
             });
         } catch (e) {
