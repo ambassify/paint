@@ -97,6 +97,12 @@ function _makeSassOptions (isUrl, source, vars, baseOptions) {
         sassFileOptions(source, vars, baseOptions);
 }
 
+function _sassCompile (options) {
+    logger.info({ context: 'sass' }, 'Compiling sass');
+
+    return sassCompile(options);
+}
+
 export default
 function Paint (source, variablesUrl = null, variables = null, options = {}) {
     const isUrl = _isUrl(source);
@@ -119,5 +125,5 @@ function Paint (source, variablesUrl = null, variables = null, options = {}) {
         .then(() => _ensureLocal(isUrl, source))
         .then((local) => _ensureUnpacked(isUrl, local))
         .then((local) => _makeSassOptions(isUrl, local, varMap, options))
-        .then(sassCompile);
+        .then((options) => _sassCompile(options));
 }
