@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import path from 'path';
 
 import logger from './logger';
+import { ApplicationError } from '../lib/error';
 
 let _root = null;
 
@@ -13,17 +14,17 @@ let _hash = _.intersection(_tryHashes, _allHashes).shift();
 
 if (!_hash) {
     _hash = _allHashes.pop();
-    logger.warn('Using non-preferred hashing in filesystem helper:', _hash);
+    logger().warn('Using non-preferred hashing in filesystem helper:', _hash);
 }
 
 function _ensureRoot () {
     if (!_root)
-        throw new Error('Root for filesystem helper is not set.');
+        throw new ApplicationError('Root for filesystem helper is not set.');
 }
 
 export function setRoot (p) {
     if (!fs.existsSync(p))
-        throw new Error('Failed to set root for filesytem helper, path doet not exist.');
+        throw new ApplicationError('Failed to set root for filesytem helper, path doet not exist.');
 
     _root = p;
 }

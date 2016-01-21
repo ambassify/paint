@@ -6,6 +6,7 @@ import fileType from 'file-type';
 import readChunk from 'read-chunk';
 
 import { getDirectoryForPath } from './cache';
+import { ApplicationError } from '../lib/error';
 
 function _getType (path) {
     const info = fileType(readChunk.sync(path, 0, 262));
@@ -26,7 +27,9 @@ export default function unarchive (path) {
         const type = _getType(path);
 
         if (!_canHandle(type))
-            throw new Error(`unarchive helper does not support type ${type}`);
+            throw new ApplicationError(
+                `unarchive helper does not support type ${type}`
+            );
 
         const cacheDir = getDirectoryForPath(path);
 
@@ -34,7 +37,9 @@ export default function unarchive (path) {
             return resolve(cacheDir.path);
 
         const read = fs.createReadStream(path)
-            .on('error', () => { throw new Error(`Failed to read file. ${path}`);});
+            .on('error', () => {
+                throw new ApplicationError(`Failed to read file`);
+            });
 
         let pipeline;
 
@@ -47,7 +52,9 @@ export default function unarchive (path) {
             pipeline = tar.extract(cacheDir.path);
 
         read.pipe(pipeline)
-            .on('error', () => { throw new Error(`Failed to extract archive. ${path}`);})
+            .on('error', () => {
+                throw new ApplicationError(`failed to extract archive`);
+            })
             .on('finish', () => { resolve(cacheDir.path); });
     });
 }

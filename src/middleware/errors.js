@@ -2,24 +2,48 @@
 
 import _ from 'lodash';
 import { inProduction } from '../helpers/environment';
+import logger, { logForLevel } from '../helpers/logger';
+import { PaintError, PaintHttpError } from '../lib/error';
 
 export default function errorHandler (err, req, res, next) {
+    if (err instanceof PaintError) {
+        const level = err.getSeverity();
+        logForLevel(level)(err);
+    } else if (err instanceof Error) {
+        // This means an error occured that is not explicitly handled by our own
+        // code, someone should probably look at it.
+        logger().warn(
+            { err }, 'Error handler was called with non-PaintHttpError'
+        );
+    } else {
+        // It's not fatal, but this code should NEVER be reached because we
+        // want all errors in the application to be nicely handled and have
+        // stack traces.
+        logger().fatal({ err: err }, 'Error handler was called with non-Error');
+    }
+
     // Delegate to Express error handler if response was already started
     if (res.headersSent) {
         return next(err);
     }
 
-    const error = _.isString(err) ? { message: err } : err,
-        code = err.code || 500,
-        message = err.message || 'Internal server error',
-        body = err.body || {},
-        originalError = err.error || false;
+    let code = 500;
+    const body = { code };
 
-    body.code = body.code || code;
-    body.message = body.message || message;
+    if (err instanceof PaintHttpError) {
+        body.code = code = err.code;
+    }
 
-    if (originalError && !inProduction())
-        body.error = (originalError.stack || originalError.toString()).split('\n');
+    if (err instanceof Error) {
+        body.message = err.toString();
+        body.error = err.stack.split('\n');
+    } else {
+        body.message = _.isFunction(err.toString) ?
+            err.toString() : 'Unkown error';
+    }
+
+    if (inProduction())
+        delete body.error;
 
     res.status(code).json(body);
 }
