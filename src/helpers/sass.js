@@ -84,7 +84,7 @@ export function optionsForFile (file, vars, baseOptions) {
     const options = {
         outputStyle: 'compressed',
         data: makeSassVariables(vars) + '\n' + makeSassImport(file),
-        importer: [ _getImportProtector(false), sassGlobbing ]
+        importer: [ _getImportProtector(file), sassGlobbing ]
     };
 
     return options;
