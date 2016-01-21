@@ -1,10 +1,26 @@
 import bunyan from 'bunyan';
 
-const logger = bunyan.createLogger({
+let logger = bunyan.createLogger({
     name: 'paint',
-    level: 'trace'
+    level: 'trace',
+    serializers: {
+        err: bunyan.stdSerializers.err
+    }
 });
 
-logger.levels(0);
+export default function () {
+    return logger;
+};
 
-export default logger;
+export function logForLevel(levelOrName) {
+    const level = bunyan.resolveLevel(levelOrName);
+
+    if (!level || !bunyan.nameFromLevel[level])
+        return logger.fatal.bind(logger);
+
+    return logger[bunyan.nameFromLevel[level]].bind(logger);
+}
+
+export function addLoggerContext(ctx) {
+    logger = logger.child(ctx);
+}

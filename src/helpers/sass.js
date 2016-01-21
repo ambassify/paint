@@ -5,6 +5,7 @@ import sass from 'node-sass';
 import sassGlobbing from 'node-sass-globbing';
 
 import logger from './logger';
+import { InvalidSassError } from '../lib/error';
 
 const sassGlobbingPrevRe = /^\|prev=([^\|]*?)\|/;
 
@@ -31,7 +32,9 @@ const _getImportProtector = (allowed) => (file, prev) => {
 
         // If it is a file, check if they are allowed to import it
         if (stat.isFile() && (!allowed || resolved.indexOf(allowed) !== 0)) {
-            return new Error(`Attempted to include restricted file: ${file}`);
+            return new InvalidSassError(
+                `Attempted to include restricted file: ${file}`
+            );
         }
     } catch (e) { }
 
@@ -61,7 +64,7 @@ export default function compile (options) {
     return new Promise((resolve, reject) => {
         sass.render(options, (err, res) => {
             if (err)
-                reject(err);
+                reject(new InvalidSassError(err.toString()));
             else
                 resolve(res.css);
         });
@@ -84,7 +87,7 @@ export function optionsForFile (file, vars, baseOptions) {
     const options = {
         outputStyle: 'compressed',
         data: makeSassVariables(vars) + '\n' + makeSassImport(file),
-        importer: [ _getImportProtector(false), sassGlobbing ]
+        importer: [ _getImportProtector(file), sassGlobbing ]
     };
 
     return options;

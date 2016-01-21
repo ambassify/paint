@@ -3,6 +3,7 @@ import https from 'https';
 import fs from 'fs';
 
 import { getFileForPath } from './cache';
+import { ResourceError } from '../lib/error';
 
 function _request(url, cb) {
     const agent = url.indexOf('https') === 0 ? https : http;
@@ -11,19 +12,19 @@ function _request(url, cb) {
         const statusCode = res.statusCode;
 
         if (statusCode.toString().substr(0, 1) != 2) {
-            throw new Error(`Request failed with code ${statusCode}`);
+            cb(new ResourceError(url, `response code ${statusCode}`));
         }
 
-        cb(res);
+        cb(null, res);
 
     }).on('error', (err) => {
         request.abort();
-        throw err;
+        cb(new ResourceError(url, err.toString()));
     }).on('socket', (socket) => {
         socket.setTimeout(15000);
         socket.on('timeout', () => {
             request.abort();
-            throw new Error('Request timeout');
+            cb(new ResourceError(url, `timeout`));
         });
     });
 }
@@ -38,7 +39,10 @@ export function downloadFile(url) {
         const stream = fs.createWriteStream(cacheDir.path);
 
         try {
-            _request(url, (res) => {
+            _request(url, (err, res) => {
+                if (err)
+                    return reject(err);
+
                 res.pipe(stream);
                 res.on('end', () => {
                     resolve(cacheDir.path);

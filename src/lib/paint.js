@@ -4,9 +4,15 @@ import fs from 'fs';
 import sass from 'node-sass';
 import _ from 'lodash';
 
+import {
+    InvalidParameterError,
+    InvalidVariablesError
+} from './error';
+
 import logger from '../helpers/logger';
 import { download, downloadFile } from '../helpers/download';
 import unpack, { canHandle as isArchive } from '../helpers/unarchive';
+import { isUrl as _isUrl } from '../helpers/url';
 import sassCompile, {
     optionsForFile as sassFileOptions,
     optionsForDirectory as sassDirectoryOptions,
@@ -17,25 +23,16 @@ const SASS_OPTIONS = {
     outputStyle: 'compressed'
 };
 
-function _isUrl (url) {
-    return /^http/.test(url);
-}
-
 function _downloadVariables (url) {
     if (!url)
         return {};
 
-    logger.info({ context: 'variables' }, 'Downloading variables from %s', url);
+    logger().info({ context: 'variables' }, 'Downloading variables from %s', url);
 
     return download(url)
-        .catch((e) => {
-            throw new Error(`'Failed to download [${url}]`);
-        })
         .then((contents) => {
             let variables = contents;
 
-            // Superagent should have handled this, but we try once more
-            // in case the source didn't set Content-Type correctly
             if (_.isString(contents)) {
                 try {
                     variables = JSON.parse(contents);
@@ -43,7 +40,7 @@ function _downloadVariables (url) {
             }
 
             if (!_.isPlainObject(variables)) {
-                throw new Error(`'Invalid variables supplied at [${url}]`);
+                throw new InvalidVariablesError(`at [${url}]`);
             }
 
             return variables;
@@ -51,15 +48,10 @@ function _downloadVariables (url) {
 }
 
 function _assignVariables (map, variables = null) {
-    if (variables && !_.isPlainObject(variables))
-        throw new Error('Invalid variables');
-
     if (variables) {
         _.forEach(variables, (v, k) => {
             if (!_.isString(v))
-                throw new Error(
-                    `Invalid variable [${k}]: ${JSON.stringify(v)}`
-                );
+                throw new InvalidVariablesError({ [k]: v });
 
             map[k] = v;
         });
@@ -72,7 +64,7 @@ function _ensureLocal (isUrl, source) {
     if (!isUrl)
         return source;
 
-    logger.info({ context: 'source' }, 'Downloading source from %s', source);
+    logger().info({ context: 'source' }, 'Downloading source from %s', source);
 
     return downloadFile(source);
 }
@@ -81,13 +73,13 @@ function _ensureUnpacked (isFile, source) {
     if (!isFile || !isArchive(source))
         return source;
 
-    logger.info({ context: 'source' }, 'Unpacking downloaded source');
+    logger().info({ context: 'source' }, 'Unpacking downloaded source');
 
     return unpack(source);
 }
 
 function _makeSassOptions (isUrl, source, vars, baseOptions) {
-    logger.info({ context: 'sass' }, 'Generating sass variables');
+    logger().info({ context: 'sass' }, 'Generating sass variables');
 
     if (!isUrl)
         return sassDataOptions(source, vars, baseOptions);
@@ -98,7 +90,7 @@ function _makeSassOptions (isUrl, source, vars, baseOptions) {
 }
 
 function _sassCompile (options) {
-    logger.info({ context: 'sass' }, 'Compiling sass');
+    logger().info({ context: 'sass' }, 'Compiling sass');
 
     return sassCompile(options);
 }
@@ -108,17 +100,7 @@ function Paint (source, variablesUrl = null, variables = null, options = {}) {
     const isUrl = _isUrl(source);
     const varMap = {};
 
-    const promise = new Promise((resolve, reject) => {
-        if (!_.isString(source) || !source.length)
-            throw new Error('Invalid source');
-
-        if (variablesUrl && !_isUrl(variablesUrl))
-            throw new Error('Invalid variables URL');
-
-        resolve(variablesUrl);
-    });
-
-    return promise
+    return Promise.resolve(variablesUrl)
         .then(_downloadVariables)
         .then((vars) => _assignVariables(varMap, vars))
         .then(() => _assignVariables(varMap, variables))
