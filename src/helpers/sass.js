@@ -7,6 +7,10 @@ import sassGlobbing from 'node-sass-globbing';
 import logger from './logger';
 import { InvalidSassError } from '../lib/error';
 
+const defaultOptions = {
+    outputStyle: 'compressed'
+};
+
 const sassGlobbingPrevRe = /^\|prev=([^\|]*?)\|/;
 
 const _getImportProtector = (allowed) => (file, prev) => {
@@ -43,14 +47,25 @@ const _getImportProtector = (allowed) => (file, prev) => {
     return sass.types.Null(); // eslint-disable-line
 };
 
-export function makeSassVariables (vars) {
+function makeSassVariables (vars) {
     return _.map(vars, (v, k) => {
         return `$${k}: ${v};`;
     }).join('\n');
 }
 
-export function makeSassImport (location) {
+function makeSassImport (location) {
     return `@import "${location}";`;
+}
+
+function parseBaseOptions (baseOptions) {
+    const options = {};
+
+    if (baseOptions.debug == 1) {
+        options.sourceMapEmbed = true;
+        options.sourceMapContents = true;
+    }
+
+    return options;
 }
 
 export default function compile (options) {
@@ -74,31 +89,28 @@ export default function compile (options) {
 export function optionsForDirectory (dir, vars, baseOptions) {
     const file = dir + '/style.scss';
 
-    const options = {
-        outputStyle: 'compressed',
+    const options = _.assign(defaultOptions, parseBaseOptions(baseOptions), {
         data: makeSassVariables(vars) + '\n' + makeSassImport(file),
         importer: [ _getImportProtector(dir), sassGlobbing ]
-    };
+    });
 
     return options;
 }
 
 export function optionsForFile (file, vars, baseOptions) {
-    const options = {
-        outputStyle: 'compressed',
+    const options = _.assign(defaultOptions, parseBaseOptions(baseOptions), {
         data: makeSassVariables(vars) + '\n' + makeSassImport(file),
         importer: [ _getImportProtector(file), sassGlobbing ]
-    };
+    });
 
     return options;
 }
 
 export function optionsForData (sassText, vars, baseOptions) {
-    const options = {
-        outputStyle: 'compressed',
+    const options = _.assign(defaultOptions, parseBaseOptions(baseOptions), {
         data: makeSassVariables(vars) + '\n' + sassText,
         importer: [ _getImportProtector(false), sassGlobbing ]
-    };
+    });
 
     return options;
 }
