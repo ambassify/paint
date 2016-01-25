@@ -40,7 +40,10 @@ function _downloadVariables (url) {
             }
 
             if (!_.isPlainObject(variables)) {
-                throw new InvalidVariablesError(`at [${url}]`);
+                throw new InvalidVariablesError(
+                    contents,
+                    `Invalid SASS variables at [${url}]`
+                );
             }
 
             return variables;

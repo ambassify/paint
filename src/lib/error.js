@@ -41,37 +41,25 @@ class PaintHttpError extends PaintError {
 export
 class InvalidParameterError extends PaintHttpError {
     constructor(params = [], message = 'Invalid paramaters') {
+        params = params ? params instanceof Array ? params : [ params ] : [];
+        message += (params.length ? ': ' : '') + params.join(', ');
         super(400, message);
-        this.params = params ?
-            params instanceof Array ?
-            params :
-            [ params ] :
-            [];
-    }
-
-    toString() {
-        return super.toString() + (this.params.length ? ': ' : '') +
-            this.params.join(', ');
     }
 }
 
 export
 class InvalidVariablesError extends PaintHttpError {
     constructor(vars = null, message = 'Invalid SASS variables') {
-        super(400, message);
-        this.vars = vars;
-    }
-
-    toString() {
         let varMessage = '';
 
-        if (_.isPlainObject(this.vars)) {
-            varMessage = ': ' + JSON.stringify(this.vars);
-        } else if (_.isString(this.vars)) {
-            varMessage = ' ' + this.vars;
+        if (_.isPlainObject(vars)) {
+            varMessage = ': ' + JSON.stringify(vars);
+        } else if (_.isString(vars)) {
+            varMessage = ': ' + vars;
         }
 
-        return super.toString() + varMessage;
+        message += varMessage;
+        super(400, message);
     }
 }
 
@@ -82,21 +70,13 @@ class ResourceError extends PaintHttpError {
         reason = null,
         message = 'Error requesting resource'
     ) {
+        if (resource)
+            message += ` [${resource}]`;
+
+        if (reason)
+            message += ` - ${reason}`;
+
         super(400, message);
-        this.resource = resource;
-        this.reason = reason;
-    }
-
-    toString() {
-        let message = '';
-
-        if (this.resource)
-            message += ` [${this.resource}]`;
-
-        if (this.reason)
-            message += ` - ${this.reason}`;
-
-        return super.toString() + message;
     }
 }
 
