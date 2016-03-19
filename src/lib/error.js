@@ -49,7 +49,7 @@ class InvalidParameterError extends PaintHttpError {
 
 export
 class InvalidVariablesError extends PaintHttpError {
-    constructor(vars = null, message = 'Invalid SASS variables') {
+    constructor(vars = null, message = 'Invalid SASS variables', severity) {
         let varMessage = '';
 
         if (_.isPlainObject(vars)) {
@@ -59,7 +59,7 @@ class InvalidVariablesError extends PaintHttpError {
         }
 
         message += varMessage;
-        super(400, message);
+        super(400, message, severity);
     }
 }
 

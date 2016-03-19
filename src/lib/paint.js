@@ -1,5 +1,6 @@
 'use strict';
 
+import bunyan from 'bunyan';
 import fs from 'fs';
 import sass from 'node-sass';
 import _ from 'lodash';
@@ -29,7 +30,7 @@ function _downloadVariables (url) {
 
     logger().info({ context: 'variables' }, 'Downloading variables from %s', url);
 
-    return download(url)
+    return download(url, true)
         .then((contents) => {
             let variables = contents;
 
@@ -42,7 +43,8 @@ function _downloadVariables (url) {
             if (!_.isPlainObject(variables)) {
                 throw new InvalidVariablesError(
                     contents,
-                    `Invalid SASS variables at [${url}]`
+                    `Invalid SASS variables at [${url}]`,
+                    bunyan.FATAL
                 );
             }
 

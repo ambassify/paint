@@ -52,8 +52,8 @@ export default function unarchive (path) {
             pipeline = tar.extract(cacheDir.path);
 
         read.pipe(pipeline)
-            .on('error', () => {
-                throw new ApplicationError(`failed to extract archive`);
+            .on('error', (...args) => {
+                reject(new ApplicationError(`failed to extract archive`));
             })
             .on('finish', () => { resolve(cacheDir.path); });
     });
