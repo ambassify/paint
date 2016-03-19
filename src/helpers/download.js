@@ -11,12 +11,11 @@ function _request(url, cb) {
 
         const statusCode = res.statusCode;
 
-        if (statusCode.toString().substr(0, 1) != 2) {
+        if (statusCode.toString().substr(0, 1) == 2) {
+            cb(null, res);
+        } else {
             cb(new ResourceError(url, `response code ${statusCode}`));
         }
-
-        cb(null, res);
-
     }).on('error', (err) => {
         request.abort();
         cb(new ResourceError(url, err.toString()));
