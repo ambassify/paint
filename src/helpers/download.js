@@ -58,7 +58,7 @@ export function downloadFile(url, verbose = false) {
 
                 res.pipe(stream);
                 res.on('data', (chunk) => _log(verbose, 'chunk from %s: %s', url, chunk));
-                stream.on('end', () => {
+                stream.on('finish', () => {
                     resolve(cacheDir.path);
                 });
             }, verbose);
