@@ -19,6 +19,7 @@ import sassCompile, {
     optionsForDirectory as sassDirectoryOptions,
     optionsForData as sassDataOptions
 } from '../helpers/sass';
+import autoprefix from '../helpers/autoprefixer';
 
 const SASS_OPTIONS = {
     outputStyle: 'compressed'
@@ -112,5 +113,6 @@ function Paint (source, variablesUrl = null, variables = null, options = {}) {
         .then(() => _ensureLocal(isUrl, source))
         .then((local) => _ensureUnpacked(isUrl, local))
         .then((local) => _makeSassOptions(isUrl, local, varMap, options))
-        .then((sassOptions) => _sassCompile(sassOptions));
+        .then((sassOptions) => _sassCompile(sassOptions))
+        .then(autoprefix);
 }
