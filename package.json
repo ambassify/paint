@@ -42,7 +42,7 @@
     "express": "^4.13.3",
     "file-type": "^3.4.0",
     "lodash": "^3.10.1",
-    "node-sass": "^3.4.2",
+    "node-sass": "JorgenEvens/node-sass",
     "node-sass-globbing": "0.0.23",
     "postcss": "^5.0.21",
     "pumpify": "^1.3.3",
