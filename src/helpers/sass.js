@@ -80,8 +80,12 @@ export default function compile (options) {
         sass.render(options, (err, res) => {
             if (err)
                 reject(new InvalidSassError(err.toString()));
-            else
-                resolve(res.css);
+            else {
+                const css = res.css.toString('utf8');
+                res = null; // now it is free by the time we reach global.gc()
+                resolve(css);
+                global.gc(); // Run GC here such that it does not interfere with the request.
+            }
         });
     });
 }
