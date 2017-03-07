@@ -6,6 +6,7 @@ import sass from 'node-sass';
 import _ from 'lodash';
 
 import {
+    InvalidSassError,
     InvalidParameterError,
     InvalidVariablesError
 } from './error';
@@ -95,10 +96,28 @@ function _makeSassOptions (isUrl, source, vars, baseOptions) {
         sassFileOptions(source, vars, baseOptions);
 }
 
-function _sassCompile (options) {
+function _sassCompile (isUrl, source, vars, baseOptions) {
+    const options = _makeSassOptions(isUrl, source, vars, baseOptions);
+
     logger().info({ context: 'sass' }, 'Compiling sass');
 
     return sassCompile(options);
+}
+
+function _resolveSource(source, isUrl) {
+    return Promise.resolve()
+        .then(() => _ensureLocal(isUrl, source))
+        .then((local) => _ensureUnpacked(isUrl, local));
+}
+
+function _resolveVariables(url, variables) {
+    const varMap = {};
+
+    return Promise.resolve(url)
+        .then(_downloadVariables)
+        .then((vars) => _assignVariables(varMap, vars))
+        .then(() => _assignVariables(varMap, variables))
+        .then(() => varMap);
 }
 
 export default
@@ -106,13 +125,18 @@ function Paint (source, variablesUrl = null, variables = null, options = {}) {
     const isUrl = _isUrl(source);
     const varMap = {};
 
-    return Promise.resolve(variablesUrl)
-        .then(_downloadVariables)
-        .then((vars) => _assignVariables(varMap, vars))
-        .then(() => _assignVariables(varMap, variables))
-        .then(() => _ensureLocal(isUrl, source))
-        .then((local) => _ensureUnpacked(isUrl, local))
-        .then((local) => _makeSassOptions(isUrl, local, varMap, options))
-        .then((sassOptions) => _sassCompile(sassOptions))
-        .then(autoprefix);
+    const retryNoVars = !!options.retryNoVars;
+    delete options.retryNoVars;
+
+    return Promise.all([
+        _resolveSource(source, isUrl),
+        _resolveVariables(variablesUrl, variables)
+    ]).then(([ local, mergedVars ]) => {
+        return _sassCompile(isUrl, local, mergedVars, options).catch(e => {
+            if (!retryNoVars || !(e instanceof InvalidSassError))
+                throw e;
+
+            return _sassCompile(isUrl, local, {}, options);
+        });
+    }).then(autoprefix);
 }
