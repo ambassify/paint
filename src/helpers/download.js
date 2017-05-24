@@ -46,8 +46,6 @@ export function downloadFile(url, verbose = false) {
             return resolve(cacheDir.path);
         }
 
-        const stream = fs.createWriteStream(cacheDir.path);
-
         try {
             _request(url, (err, res) => {
                 if (err)
@@ -56,6 +54,7 @@ export function downloadFile(url, verbose = false) {
                 if (err)
                     return reject(err);
 
+                const stream = fs.createWriteStream(cacheDir.path);
                 res.pipe(stream);
                 res.on('data', (chunk) => _log(verbose, 'chunk from %s: %s', url, chunk));
                 stream.on('finish', () => {
@@ -63,7 +62,7 @@ export function downloadFile(url, verbose = false) {
                 });
             }, verbose);
         } catch (e) {
-            throw e;
+            reject(e);
         }
     });
 }
