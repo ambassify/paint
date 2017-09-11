@@ -6,6 +6,7 @@ import sassGlobbing from 'node-sass-globbing';
 
 import logger from './logger';
 import { InvalidSassError } from '../lib/error';
+import { getSassModulePaths } from './environment';
 
 const defaultOptions = {
     outputStyle: 'compressed'
@@ -86,12 +87,24 @@ export default function compile (options) {
     });
 }
 
+function createModuleImporter(root) {
+    const modulePaths = getSassModulePaths() || [];
+    let paths = undefined;
+
+    if (modulePaths.length)
+        paths = modulePaths.map(p => path.resolve(root, p));
+
+    return require('sass-module-importer')({ paths });
+}
+
+
 export function optionsForDirectory (dir, vars, baseOptions) {
     const file = dir + '/style.scss';
 
     const options = _.assign(defaultOptions, parseBaseOptions(baseOptions), {
         data: makeSassVariables(vars) + '\n' + makeSassImport(file),
-        importer: [ _getImportProtector(dir), sassGlobbing ]
+        // globbing enabled; import node modules; protect imports (relative to dir)
+        importer: [ _getImportProtector(dir), createModuleImporter(dir), sassGlobbing ]
     });
 
     return options;
@@ -100,7 +113,8 @@ export function optionsForDirectory (dir, vars, baseOptions) {
 export function optionsForFile (file, vars, baseOptions) {
     const options = _.assign(defaultOptions, parseBaseOptions(baseOptions), {
         data: makeSassVariables(vars) + '\n' + makeSassImport(file),
-        importer: [ _getImportProtector(file), sassGlobbing ]
+        // no imports or globbing allowed (except the file itself)
+        importer: [ _getImportProtector(file) ]
     });
 
     return options;
@@ -109,7 +123,8 @@ export function optionsForFile (file, vars, baseOptions) {
 export function optionsForData (sassText, vars, baseOptions) {
     const options = _.assign(defaultOptions, parseBaseOptions(baseOptions), {
         data: makeSassVariables(vars) + '\n' + sassText,
-        importer: [ _getImportProtector(false), sassGlobbing ]
+        // no imports or globbing allowed
+        importer: [ _getImportProtector(false) ]
     });
 
     return options;

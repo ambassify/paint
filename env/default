@@ -1,3 +1,4 @@
 ENVIRONMENT=development
 NODE_ENV=$ENVIRONMENT
 PORT=3000
+SASS_MODULE_PATHS=custom_modules/bbbx-components/node_modules
