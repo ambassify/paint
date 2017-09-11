@@ -14,6 +14,10 @@
     "PORT": {
       "description": "Port to run from",
       "value": "80"
+    },
+    "SASS_MODULE_PATHS": {
+      "description": "Comma-separated list of extra paths (relative to zip-root) to use for module importer",
+      "required": true
     }
   }
 }

@@ -2,6 +2,8 @@
 
 import dotenv from 'dotenv';
 import path from 'path';
+import loadEnv from '@ambassify/load-env';
+import toArray from '@ambassify/load-env/parsers/array';
 
 export default
 function initialize (envPath, opts = {}) {
@@ -28,3 +30,5 @@ export function inProduction () {
 export function inTesting () {
     return process.env.ENVIRONMENT === 'testing';
 }
+
+export const getSassModulePaths = () => loadEnv('SASS_MODULE_PATHS', [], toArray);
