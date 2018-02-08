@@ -50,3 +50,16 @@ $secondary: #F00;
 ## Development
 
 See [usage](#usage) but replace `npm start` with `npm run dev` to run a watch task and reload the server every time you make changes to the code. Some environment variables may not be provided by default for security reasons, ask one of the developers for help if you need these.
+
+## Contribute
+
+We really appreciate any contribution you would like to make, so don't
+hesitate to report issues or submit pull requests.
+
+## License
+
+This project is released under a MIT license.
+
+## About us
+
+If you would like to know more about us, be sure to have a look at [our website](https://www.ambassify.com), or our Twitter accounts [Ambassify](https://twitter.com/Ambassify), [Sitebase](https://twitter.com/Sitebase), [JorgenEvens](https://twitter.com/JorgenEvens)

@@ -23,7 +23,7 @@
     "build"
   ],
   "author": "Ambassify",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bubobox/paint/issues"
   },
