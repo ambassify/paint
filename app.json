@@ -1,9 +1,9 @@
 {
   "name": "Paint",
   "description": "Dynamic SASS builder in Node.js",
-  "repository": "https://github.com/bubobox/paint",
-  "website": "https://github.com/bubobox/paint",
-  "logo": "https://raw.githubusercontent.com/bubobox/paint/master/logo.png",
+  "repository": "https://github.com/ambassify/paint",
+  "website": "https://github.com/ambassify/paint",
+  "logo": "https://raw.githubusercontent.com/ambassify/paint/master/logo.png",
   "keywords": ["node", "sass"],
   "repository": "https://github.com/bubobox/paint",
   "success_url": "/",
