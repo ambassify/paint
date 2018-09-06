@@ -3,10 +3,16 @@ import fs from 'fs';
 import path from 'path';
 import sass from 'node-sass';
 import sassGlobbing from 'node-sass-globbing';
+import PQueue from 'p-queue';
 
 import logger from './logger';
 import { InvalidSassError } from '../lib/error';
 import { getSassModulePaths } from './environment';
+
+// Queue ensures node-sass does not stall by consuming the entire pool
+// https://github.com/sass/node-sass/issues/857
+const poolSize = process.env.UV_THREADPOOL_SIZE || 4;
+const sassQueue = new PQueue({ concurrency: poolSize - 1 });
 
 const defaultOptions = {
     outputStyle: 'compressed'
@@ -77,14 +83,14 @@ export default function compile (options) {
     if (!options.importer)
         options.importer = _getImportProtector(false);
 
-    return new Promise((resolve, reject) => {
+    return sassQueue.add(() => new Promise((resolve, reject) => {
         sass.render(options, (err, res) => {
             if (err)
                 reject(new InvalidSassError(err.toString()));
             else
                 resolve(res.css);
         });
-    });
+    }));
 }
 
 function createModuleImporter(root) {
