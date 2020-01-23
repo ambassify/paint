@@ -5,7 +5,6 @@ import sass from 'node-sass';
 import sassGlobbing from 'node-sass-globbing';
 import PQueue from 'p-queue';
 
-import logger from './logger';
 import { InvalidSassError } from '../lib/error';
 import { getSassModulePaths } from './environment';
 

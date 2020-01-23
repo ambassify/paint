@@ -30,7 +30,7 @@ function _downloadVariables (url) {
     if (!url)
         return {};
 
-    logger().info({ context: 'variables' }, 'Downloading variables from %s', url);
+    logger().info('[variables] Downloading variables from %s', url);
 
     return download(url, true)
         .then((contents) => {
@@ -71,7 +71,7 @@ function _ensureLocal (isUrl, source) {
     if (!isUrl)
         return source;
 
-    logger().info({ context: 'source' }, 'Downloading source from %s', source);
+    logger().info('[source] Downloading source from %s', source);
 
     return downloadFile(source);
 }
@@ -80,13 +80,13 @@ function _ensureUnpacked (isFile, source) {
     if (!isFile || !isArchive(source))
         return source;
 
-    logger().info({ context: 'source' }, 'Unpacking downloaded source');
+    logger().info('[source] Unpacking downloaded source');
 
     return unpack(source);
 }
 
 function _makeSassOptions (isUrl, source, vars, baseOptions) {
-    logger().info({ context: 'sass' }, 'Generating sass variables');
+    logger().info('[sass] Generating sass variables');
 
     if (!isUrl)
         return sassDataOptions(source, vars, baseOptions);
@@ -99,7 +99,7 @@ function _makeSassOptions (isUrl, source, vars, baseOptions) {
 function _sassCompile (isUrl, source, vars, baseOptions) {
     const options = _makeSassOptions(isUrl, source, vars, baseOptions);
 
-    logger().info({ context: 'sass' }, 'Compiling sass');
+    logger().info('[sass] Compiling sass');
 
     return sassCompile(options);
 }
