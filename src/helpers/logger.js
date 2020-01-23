@@ -1,11 +1,9 @@
 import bunyan from 'bunyan';
+import createLogger from '@ambassify/bunyan-logger';
 
-let logger = bunyan.createLogger({
+let logger = createLogger({
     name: 'paint',
-    level: 'trace',
-    serializers: {
-        err: bunyan.stdSerializers.err
-    }
+    level: 'trace'
 });
 
 export default function () {

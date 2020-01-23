@@ -3,14 +3,15 @@ import uuid from 'uuid';
 import { addLoggerContext } from '../helpers/logger';
 
 export default function (req, res, next) {
-    const request = {
-        id: req.get('X-Request-Id') || uuid.v4(),
+    const logref = req.get('X-Request-Id') || uuid.v4();
+
+    req = {
         method: req.method,
         url: req.originalUrl,
-        params: req.params,
-        query: req.query
+        params: JSON.stringify(req.params),
+        query: JSON.stringify(req.query)
     };
 
-    addLoggerContext({ req: request });
+    addLoggerContext({ logref, req });
     next();
 }

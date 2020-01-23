@@ -6,9 +6,9 @@ import logger from './logger';
 import { getFileForPath } from './cache';
 import { ResourceError } from '../lib/error';
 
-function _log(verbose, ...args) {
+function _log(verbose, message, ...args) {
     if (verbose)
-        logger().info({ context: 'download' }, ...args);
+        logger().info(`[download] ${message}`, ...args);
 }
 
 function _request(url, cb, verbose = false) {
