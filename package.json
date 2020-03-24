@@ -32,7 +32,7 @@
     "node": "9.x.x"
   },
   "dependencies": {
-    "@ambassify/bunyan-logger": "^3.0.3",
+    "@ambassify/bunyan-logger": "^3.0.8",
     "@ambassify/load-env": "^1.1.1",
     "autoprefixer": "^6.3.7",
     "babel-cli": "^6.4.0",
