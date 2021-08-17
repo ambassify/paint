@@ -1,3 +1,7 @@
+# ARCHIVED: At this time, Ambassify is not maintaining this code anymore.
+
+You can still use it if you like.
+
 # Paint
 
 SASS building microservice.
